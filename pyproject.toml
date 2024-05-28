@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+pythonpath = ["../rdr_infrastructure"]
+# env = ["AWS_PROFILE=WS-01WS-role_DEVOPS", "AWS_DEFAULT_REGION=eu-west-1"]
+env = ["STAGE=uat", "AWS_PROFILE=WS-0207-role_DEVOPS", "AWS_DEFAULT_REGION=eu-west-1"]
+norecursedirs = ["../rdr_infrastructure/aws_lambda_layers", ".aws-sam", ".pytest_cache", ".venv"]

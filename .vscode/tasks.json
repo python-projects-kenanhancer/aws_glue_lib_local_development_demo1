@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Convert Notebook to Script",
+            "type": "shell",
+            "command": "pipenv run watchmedo shell-command --patterns='*.ipynb' --command='pipenv run jupyter nbconvert --to script ${watch_src_path}' --recursive .",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}
