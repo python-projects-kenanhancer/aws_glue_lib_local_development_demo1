@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# Determine the directory of this script
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GLUE_SCRIPT_DIR="$ROOT_DIR/setup_aws_glue_scripts"
+
+# Run install_zip.sh in a subshell
+(
+    source "$GLUE_SCRIPT_DIR/install_zip.sh"
+    install_zip
+)
+
+# Run install_pbcopy.sh in a subshell
+(
+    source "$GLUE_SCRIPT_DIR/install_pbcopy.sh"
+    install_pbcopy
+)
+
+# Run setup_virtual_env.sh in a subshell
+(
+    source "$GLUE_SCRIPT_DIR/setup_virtual_env.sh"
+    setup_virtual_env
+)
+
 # Function to stop any running Jupyter servers
 function stop_existing_jupyter() {
     echo "Stopping any existing Jupyter Notebook servers..."
@@ -15,7 +37,7 @@ function start_jupyter() {
     echo "Starting Jupyter Notebook server..."
     pipenv run jupyter notebook --no-browser >jupyter_output.log 2>&1 &
     JUPYTER_PID=$!
-    sleep 5
+    sleep 7
     JUPYTER_URL=$(grep -o 'http://127.0.0.1:[0-9]*/[^ ]*' jupyter_output.log | head -n 1)
     echo "Jupyter Server URL: $JUPYTER_URL"
     echo $JUPYTER_URL | pbcopy

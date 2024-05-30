@@ -6,18 +6,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Source the os_check.sh script to get the OS detection functions
 source "$SCRIPT_DIR/os_check.sh"
 
-function install_zip {
+function install_pbcopy {
     if is_mac_os || is_linux_os; then
-        # Check if zip is already installed
-        if ! command -v zip &>/dev/null; then
-            echo "Zip is not installed. Installing..."
+        # Check if pbcopy is already installed
+        if ! command -v pbcopy &>/dev/null; then
+            echo "pbcopy is not installed. Installing..."
             if is_mac_os; then
-                brew install zip
+                brew install coreutils
             elif is_linux_os; then
-                sudo apt-get install zip
+                # sudo apt-get install pbcopy
+                echo "NOT IMPLEMENTED"
             fi
         else
-            echo "Zip is already installed."
+            echo "Pbcopy is already installed."
         fi
     elif is_windows_os; then
         # Check if Choco is installed
@@ -27,12 +28,12 @@ function install_zip {
             echo "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-ObjectSystem.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
             exit 1 # Exit the script since Choco is essential
         else
-            # Check if zip is already installed
-            if ! command -v zip &>/dev/null; then
-                echo "Zip is not installed. Installing..."
-                choco install zip -y
+            # Check if pbcopy is already installed
+            if ! command -v pbcopy &>/dev/null; then
+                echo "pbcopy is not installed. Installing..."
+                choco install pasteboard -y
             else
-                echo "Zip is already installed."
+                echo "pbcopy is already installed."
             fi
         fi
     else
