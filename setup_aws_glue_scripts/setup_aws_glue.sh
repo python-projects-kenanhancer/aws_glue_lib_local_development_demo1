@@ -33,7 +33,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     install_apache_hadoop
 )
 
-# Run install_apache_spark.sh in a subshell
+# Run install_winutils.sh in a subshell
+(
+    source "$SCRIPT_DIR/install_winutils.sh"
+    install_winutils
+)
+
+# Run install_aws_glue_libs.sh in a subshell
 (
     source "$SCRIPT_DIR/install_aws_glue_libs.sh"
     install_aws_glue_libs
