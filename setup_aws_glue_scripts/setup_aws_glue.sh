@@ -28,10 +28,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 )
 
 # Run install_apache_hadoop.sh in a subshell
-(
-    source "$SCRIPT_DIR/install_apache_hadoop.sh"
-    install_apache_hadoop
-)
+# (
+#     source "$SCRIPT_DIR/install_apache_hadoop.sh"
+#     install_apache_hadoop
+# )
 
 # Run install_winutils.sh in a subshell
 (
