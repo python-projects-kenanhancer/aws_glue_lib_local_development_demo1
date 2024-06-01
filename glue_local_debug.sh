@@ -23,7 +23,7 @@ function stop_existing_jupyter() {
 # Function to start Jupyter server
 function start_jupyter() {
     echo "Starting Jupyter Notebook server..."
-    pipenv run jupyter notebook --no-browser >jupytzer_output.log 2>&1 &
+    pipenv run jupyter notebook --no-browser >jupyter_output.log 2>&1 &
     JUPYTER_PID=$!
     sleep 8
     JUPYTER_URL=$(grep -o 'http://127.0.0.1:[0-9]*/[^ ]*' jupyter_output.log | head -n 1)
