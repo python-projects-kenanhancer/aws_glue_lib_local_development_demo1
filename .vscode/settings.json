@@ -1,10 +1,10 @@
 {
-    "python.envFile": "${workspaceFolder}${pathSeparator}.env",
+    "python.envFile": "${workspaceFolder}/.env",
     "python.analysis.extraPaths": [
-        "${workspaceFolder}${pathSeparator}..${pathSeparator}kenan_infrastructure",
-        "${env:HOME}${pathSeparator}aws-glue-libs",
-        "${env:HOME}${pathSeparator}spark-3.3.0-amzn-1-bin-3.3.3-amzn-0${pathSeparator}python${pathSeparator}lib${pathSeparator}py4j-0.10.9.5-src.zip",
-        "${env:HOME}${pathSeparator}spark-3.3.0-amzn-1-bin-3.3.3-amzn-0${pathSeparator}python"
+        "${workspaceFolder}/../kenan_infrastructure",
+        "${env:HOME}/aws-glue-libs",
+        "${env:HOME}/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0/python/lib/py4j-0.10.9.5-src.zip",
+        "${env:HOME}/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0/python"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
