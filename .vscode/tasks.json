@@ -11,6 +11,17 @@
                 "reveal": "always",
                 "panel": "new"
             }
+        },
+        {
+            "label": "Start Debug",
+            "type": "shell",
+            "command": "./glue_local_debug.sh",
+            "isBackground": true,
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
         }
     ]
 }

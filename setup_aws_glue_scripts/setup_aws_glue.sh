@@ -3,10 +3,19 @@
 # Determine the directory of this script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Source the os_check.sh script to get the OS detection functions
+source "$SCRIPT_DIR/os_check.sh"
+
 # Run install_zip.sh in a subshell
 (
     source "$SCRIPT_DIR/install_zip.sh"
     install_zip
+)
+
+# Run install_pbcopy.sh in a subshell
+(
+    source "$GLUE_SCRIPT_DIR/install_pbcopy.sh"
+    install_pbcopy
 )
 
 # Run setup_virtual_env.sh in a subshell
@@ -27,17 +36,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     install_apache_spark
 )
 
-# Run install_apache_hadoop.sh in a subshell
-# (
-#     source "$SCRIPT_DIR/install_apache_hadoop.sh"
-#     install_apache_hadoop
-# )
-
 # Run install_winutils.sh in a subshell
-(
-    source "$SCRIPT_DIR/install_winutils.sh"
-    install_winutils
-)
+if is_windows_os; then
+    (
+        source "$SCRIPT_DIR/install_winutils.sh"
+        install_winutils
+    )
+fi
 
 # Run install_aws_glue_libs.sh in a subshell
 (
