@@ -90,6 +90,9 @@ sys.argv = [
 
 import sys
 import json
+
+from glue_utils import argv_to_dict
+
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
@@ -119,23 +122,46 @@ job.init(args["JOB_NAME"], args)
 
 print("sys.argv to dictionary")
 print("**********************")
-# args = argv_to_dict(sys.argv)
+print(json.dumps(obj=sys.argv, indent=4))
 
-# print("args to dictionary")
-# print("**********************")
-# print(json.dumps(args, indent=4))
+args = argv_to_dict(argv=sys.argv)
 
+args_json = json.dumps(args, indent=4)
+
+print("args to dictionary")
+print("**********************")
+print(args_json)
+
+
+# # To configure AWS Cloudwatch Logging(Mandatory)
+
+# In[ ]:
+
+
+from setup_cloudwatch_logging import setup_cloudwatch_logging
+
+
+setup_cloudwatch_logging(
+    log_group_name=args["log_group_name"],
+    log_stream_name=args["JOB_RUN_ID"],
+    job_name=args["job"],
+    execution_arn=args["execution_arn"],
+)
+
+
+# # Business Logic
 
 # In[3]:
 
 
 try:
-    # logger.info(f"Starting the Glue job with sys.argv: {sys_argv_json}")
+    logger.info(f"Beginning the job...")
 
     data = [("John", 28), ("Anna", 23), ("Mike", 35), ("Sara", 29)]
 
     # Create DataFrame from data
     columns = ["Name", "Age"]
+    
     df = spark.createDataFrame(data, columns)
 
     # Show DataFrame
@@ -150,14 +176,10 @@ try:
     # Group by a column and aggregate data
     df.groupBy("Age").count().show()
 
-    logger.info("Ending the Glue job...")
-
+    logger.info("Ending the job...")
 except Exception as e:
-
-    logger.error(f"Error encountered during the Glue job: {str(e)}", exc_info=True)
-
+    logger.error(f"Error encountered during the job: {str(e)}", exc_info=True)
 finally:
-
     job.commit()
 
 

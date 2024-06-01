@@ -1,5 +1,5 @@
 {
-    "python.envFile": "${workspaceFolder}/.env",
+    "python.envFile": "${workspaceFolder}${pathSeparator}.env",
     "python.analysis.extraPaths": [
         "${workspaceFolder}${pathSeparator}..${pathSeparator}kenan_infrastructure",
         "${env:HOME}${pathSeparator}aws-glue-libs",
