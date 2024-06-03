@@ -125,7 +125,20 @@ function setup_aws_glue_libs {
 }
 
 function set_spark_conf {
-    if is_windows_os; then
+    if is_mac_os || is_linux_os; then
+        SPARK_DIR="$HOME/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0"
+        SPARK_CONF_DIR="${AWS_GLUE_LIBS_INSTALL_DIR}/conf"
+
+        if [ ! -d "$SPARK_CONF_DIR" ]; then
+            mkdir $SPARK_CONF_DIR
+        else
+            rm -rf $SPARK_CONF_DIR
+            mkdir $SPARK_CONF_DIR
+        fi
+
+        echo "spark.driver.extraClassPath ${SPARK_DIR}/jars/*:${AWS_GLUE_LIBS_INSTALL_DIR}/jarsv1/*" >>$SPARK_CONF_DIR/spark-defaults.conf
+        echo "spark.executor.extraClassPath ${SPARK_DIR}/jars/*:${AWS_GLUE_LIBS_INSTALL_DIR}/jarsv1/*" >>$SPARK_CONF_DIR/spark-defaults.conf
+    elif is_windows_os; then
         SPARK_DIR="C:\\\\Users\\\\${USERNAME}\\\\spark-3.3.0-amzn-1-bin-3.3.3-amzn-0"
         AWS_GLUE_LIBS_DIR="C:\\\\Users\\\\${USERNAME}\\\\${AWS_GLUE_LIBS_NAME}"
         SPARK_CONF_DIR="C:\\Users\\${USERNAME}\\${AWS_GLUE_LIBS_NAME}\\conf"

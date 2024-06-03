@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/os_check.sh"
 
 # Run install_pbcopy.sh in a subshell
 (
-    source "$GLUE_SCRIPT_DIR/install_pbcopy.sh"
+    source "$SCRIPT_DIR/install_pbcopy.sh"
     install_pbcopy
 )
 
