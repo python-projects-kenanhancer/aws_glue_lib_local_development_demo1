@@ -42,7 +42,7 @@
 # 
 # Change arguments in terms of your requirements.
 
-# In[ ]:
+# In[1]:
 
 
 import sys
@@ -53,7 +53,7 @@ stage = "dev"
 current_time = datetime.now()
 
 sys.argv = [
-    "convert_csv_to_parque_glue_job.py",  # sys.argv[0], script name
+    "user_data_processing_glue_job.py",  # sys.argv[0], script name
     "true",
     "--is_local",
     "true",
@@ -70,12 +70,14 @@ sys.argv = [
     "TEST_JOB",
     "--execution_arn",
     f"arn:aws:states:eu-west-1:625904187796:execution:TEST_JOB:try-{current_time.strftime('%Y%m%d%H%M%S%f')}",
+    "--job",
+    "job_name",
     "--debugging",
     "True",
     "--stage",
     stage,
     "--log_group_name",
-    f"/aws-glue/jobs/convert-csv-to-parque-glue-job-{stage}",
+    f"/aws-glue/jobs/user_data_processing_glue_job_{stage}",
     "--total_records",
     "1000",
     "--s3_file_path",
@@ -85,18 +87,21 @@ sys.argv = [
 
 # # Initialize AWS Glue Context
 
-# In[ ]:
+# In[2]:
 
 
 import sys
 import json
+import time
+import logging
 
 from glue_utils import argv_to_dict
 
+from awsglue.transforms import *
+from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
-from awsglue.utils import getResolvedOptions
 
 
 # Get parameters passed to the script
@@ -104,6 +109,7 @@ args = getResolvedOptions(
     sys.argv,
     [
         "JOB_NAME",
+        "job",
         "execution_arn",
         "debugging",
         "log_group_name",
@@ -120,6 +126,21 @@ logger = glueContext.get_logger()
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
 
+
+# # Configure logging to display messages in Jupyter notebook
+# logging.basicConfig(
+#     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+# )
+
+# # Ensure logger from GlueContext outputs to Jupyter notebook
+# if not logger.handlers:
+#     stream_handler = logging.StreamHandler(sys.stdout)
+#     stream_handler.setLevel(logging.INFO)
+#     stream_handler.setFormatter(
+#         logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+#     )
+#     logger.addHandler(stream_handler)
+
 print("sys.argv to dictionary")
 print("**********************")
 print(json.dumps(obj=sys.argv, indent=4))
@@ -133,9 +154,33 @@ print("**********************")
 print(args_json)
 
 
+# In[3]:
+
+
+def log_operation(operation_name, func):
+    start_time = time.time()
+    try:
+        logger.info(f"Starting operation: {operation_name}")
+        func()
+        logger.info(
+            f"Completed operation: {operation_name} in {time.time() - start_time:.2f} seconds"
+        )
+    except Exception as e:
+        logger.error(
+            f"Error during operation: {operation_name} - {str(e)}", exc_info=True
+        )
+
+
+def read_csv_file(file_path):
+    global user_data_df
+    user_data_df = spark.read.csv(file_path, header=True, inferSchema=True)
+    logger.info(f"DataFrame loaded from {file_path}:")
+    user_data_df.show()
+
+
 # # To configure AWS Cloudwatch Logging(Mandatory)
 
-# In[ ]:
+# In[4]:
 
 
 from setup_cloudwatch_logging import setup_cloudwatch_logging
@@ -151,41 +196,50 @@ setup_cloudwatch_logging(
 
 # # Business Logic
 
+# In[5]:
+
+
+def read_user_data_csv():
+    global user_data_df
+    csv_file_path = "./glue_job/user_data.csv"
+    user_data_df = spark.read.csv(csv_file_path, header=True, inferSchema=True)
+    logger.info(f"CSV file successfully read from path: {csv_file_path}")
+    user_data_df.show()
+
+
+log_operation("Reading User Data CSV", read_user_data_csv)
+
+
 # In[ ]:
 
 
-try:
-    logger.info(f"Beginning the job...")
+def filter_users_older_than_30():
+    global filtered_user_data_df
+    filtered_user_data_df = user_data_df.filter(user_data_df["age"] > 30)
+    logger.info("Users older than 30 have been selected.")
+    filtered_user_data_df.show()
 
-    data = [("John", 28), ("Anna", 23), ("Mike", 35), ("Sara", 29)]
 
-    # Create DataFrame from data
-    columns = ["Name", "Age"]
-    
-    df = spark.createDataFrame(data, columns)
+log_operation("Filtering Users Older Than 30", filter_users_older_than_30)
 
-    # Show DataFrame
-    df.show()
 
-    # Select specific columns
-    df.select("Name").show()
+# In[ ]:
 
-    # Filter rows based on conditions
-    df.filter(df["Age"] > 25).show()
 
-    # Group by a column and aggregate data
-    df.groupBy("Age").count().show()
+def select_name_and_city_columns():
+    global selected_user_data_df
+    selected_user_data_df = filtered_user_data_df.select("name", "city")
+    logger.info("'name' and 'city' columns have been selected.")
+    selected_user_data_df.show()
 
-    logger.info("Ending the job...")
-except Exception as e:
-    logger.error(f"Error encountered during the job: {str(e)}", exc_info=True)
-finally:
-    job.commit()
+
+log_operation("Selecting Name and City Columns", select_name_and_city_columns)
 
 
 # In[ ]:
 
 
 # Stop the SparkSession
+job.commit()
 spark.stop()
 
