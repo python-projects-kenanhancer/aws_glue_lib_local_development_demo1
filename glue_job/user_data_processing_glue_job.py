@@ -94,8 +94,8 @@ import sys
 import json
 import logging
 
-from glue_utils import argv_to_dict, log_operation
-from log_utils import LogUtils
+from glue_utils import argv_to_dict
+from log_utils import LogUtils, log_operation
 
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions

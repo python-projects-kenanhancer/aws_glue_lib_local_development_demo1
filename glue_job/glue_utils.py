@@ -31,17 +31,3 @@ def argv_to_dict(argv):
             i += 1
 
     return arg_dict
-
-
-def log_operation(operation_name, func):
-    start_time = time.time()
-    try:
-        logging.info(f"Starting operation: {operation_name}")
-        func()
-        logging.info(
-            f"Completed operation: {operation_name} in {time.time() - start_time:.2f} seconds"
-        )
-    except Exception as e:
-        logging.error(
-            f"Error during operation: {operation_name} - {str(e)}", exc_info=True
-        )
