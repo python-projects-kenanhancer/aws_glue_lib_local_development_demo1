@@ -92,10 +92,10 @@ sys.argv = [
 
 import sys
 import json
-import time
 import logging
 
-from glue_utils import argv_to_dict
+from glue_utils import argv_to_dict, log_operation
+from log_utils import LogUtils
 
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
@@ -118,28 +118,25 @@ args = getResolvedOptions(
     ],
 )
 
+log_utils = LogUtils(
+    log_group_name=args["log_group_name"],
+    log_stream_name=args["JOB_RUN_ID"],
+    job_name=args["job"],
+    execution_arn=args["execution_arn"],
+)
+
+log_utils.configure_logging()
+
+logger = logging.getLogger()
+
 # Initialize Glue context
 sparkContext = SparkContext.getOrCreate()
 glueContext = GlueContext(sparkContext=sparkContext)
 spark = glueContext.spark_session
-logger = glueContext.get_logger()
+# logger = glueContext.get_logger()
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
 
-
-# # Configure logging to display messages in Jupyter notebook
-# logging.basicConfig(
-#     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-# )
-
-# # Ensure logger from GlueContext outputs to Jupyter notebook
-# if not logger.handlers:
-#     stream_handler = logging.StreamHandler(sys.stdout)
-#     stream_handler.setLevel(logging.INFO)
-#     stream_handler.setFormatter(
-#         logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-#     )
-#     logger.addHandler(stream_handler)
 
 print("sys.argv to dictionary")
 print("**********************")
@@ -154,49 +151,17 @@ print("**********************")
 print(args_json)
 
 
-# In[3]:
+# # To Configure AWS Cloudwatch Logging
+
+# In[ ]:
 
 
-def log_operation(operation_name, func):
-    start_time = time.time()
-    try:
-        logger.info(f"Starting operation: {operation_name}")
-        func()
-        logger.info(
-            f"Completed operation: {operation_name} in {time.time() - start_time:.2f} seconds"
-        )
-    except Exception as e:
-        logger.error(
-            f"Error during operation: {operation_name} - {str(e)}", exc_info=True
-        )
-
-
-def read_csv_file(file_path):
-    global user_data_df
-    user_data_df = spark.read.csv(file_path, header=True, inferSchema=True)
-    logger.info(f"DataFrame loaded from {file_path}:")
-    user_data_df.show()
-
-
-# # To configure AWS Cloudwatch Logging(Mandatory)
-
-# In[4]:
-
-
-from setup_cloudwatch_logging import setup_cloudwatch_logging
-
-
-setup_cloudwatch_logging(
-    log_group_name=args["log_group_name"],
-    log_stream_name=args["JOB_RUN_ID"],
-    job_name=args["job"],
-    execution_arn=args["execution_arn"],
-)
+log_utils.create_cloud_watch_log_group()
 
 
 # # Business Logic
 
-# In[5]:
+# In[3]:
 
 
 def read_user_data_csv():
@@ -210,7 +175,7 @@ def read_user_data_csv():
 log_operation("Reading User Data CSV", read_user_data_csv)
 
 
-# In[ ]:
+# In[4]:
 
 
 def filter_users_older_than_30():
@@ -223,7 +188,7 @@ def filter_users_older_than_30():
 log_operation("Filtering Users Older Than 30", filter_users_older_than_30)
 
 
-# In[ ]:
+# In[5]:
 
 
 def select_name_and_city_columns():
@@ -236,7 +201,7 @@ def select_name_and_city_columns():
 log_operation("Selecting Name and City Columns", select_name_and_city_columns)
 
 
-# In[ ]:
+# In[6]:
 
 
 # Stop the SparkSession

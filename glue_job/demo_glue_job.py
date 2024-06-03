@@ -42,7 +42,7 @@
 # 
 # Change arguments in terms of your requirements.
 
-# In[ ]:
+# In[3]:
 
 
 import sys
@@ -53,7 +53,7 @@ stage = "dev"
 current_time = datetime.now()
 
 sys.argv = [
-    "convert_csv_to_parque_glue_job.py",  # sys.argv[0], script name
+    "demo_glue_job.py",  # sys.argv[0], script name
     "true",
     "--is_local",
     "true",
@@ -70,12 +70,14 @@ sys.argv = [
     "TEST_JOB",
     "--execution_arn",
     f"arn:aws:states:eu-west-1:625904187796:execution:TEST_JOB:try-{current_time.strftime('%Y%m%d%H%M%S%f')}",
+    "--job",
+    "job_name",
     "--debugging",
     "True",
     "--stage",
     stage,
     "--log_group_name",
-    f"/aws-glue/jobs/convert-csv-to-parque-glue-job-{stage}",
+    f"/aws-glue/jobs/demo_glue_job_{stage}",
     "--total_records",
     "1000",
     "--s3_file_path",
@@ -85,18 +87,21 @@ sys.argv = [
 
 # # Initialize AWS Glue Context
 
-# In[ ]:
+# In[4]:
 
 
 import sys
 import json
+import logging
 
-from glue_utils import argv_to_dict
+from glue_utils import argv_to_dict, log_operation
+from log_utils import LogUtils
 
+from awsglue.transforms import *
+from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
-from awsglue.utils import getResolvedOptions
 
 
 # Get parameters passed to the script
@@ -104,6 +109,7 @@ args = getResolvedOptions(
     sys.argv,
     [
         "JOB_NAME",
+        "job",
         "execution_arn",
         "debugging",
         "log_group_name",
@@ -112,13 +118,25 @@ args = getResolvedOptions(
     ],
 )
 
+log_utils = LogUtils(
+    log_group_name=args["log_group_name"],
+    log_stream_name=args["JOB_RUN_ID"],
+    job_name=args["job"],
+    execution_arn=args["execution_arn"],
+)
+
+log_utils.configure_logging()
+
+logger = logging.getLogger()
+
 # Initialize Glue context
 sparkContext = SparkContext.getOrCreate()
 glueContext = GlueContext(sparkContext=sparkContext)
 spark = glueContext.spark_session
-logger = glueContext.get_logger()
+# logger = glueContext.get_logger()
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
+
 
 print("sys.argv to dictionary")
 print("**********************")
@@ -133,25 +151,17 @@ print("**********************")
 print(args_json)
 
 
-# # To configure AWS Cloudwatch Logging(Mandatory)
+# # To Configure AWS Cloudwatch Logging
 
 # In[ ]:
 
 
-from setup_cloudwatch_logging import setup_cloudwatch_logging
-
-
-setup_cloudwatch_logging(
-    log_group_name=args["log_group_name"],
-    log_stream_name=args["JOB_RUN_ID"],
-    job_name=args["job"],
-    execution_arn=args["execution_arn"],
-)
+log_utils.create_cloud_watch_log_group()
 
 
 # # Business Logic
 
-# In[ ]:
+# In[5]:
 
 
 try:
