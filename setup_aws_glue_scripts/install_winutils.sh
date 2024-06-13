@@ -73,7 +73,7 @@ function initialize_environment {
         HADOOP_INSTALL_DIR="$HOME/${HADOOP_NAME}"
         PROFILE_PATH=$(determine_shell_profile)
     elif is_windows_os; then
-        USERNAME=$(whoami)
+        USERNAME=$USERNAME
         HADOOP_INSTALL_DIR="/c/Users/${USERNAME}/${HADOOP_NAME}"
         PROFILE_PATH=$(determine_shell_profile)
 

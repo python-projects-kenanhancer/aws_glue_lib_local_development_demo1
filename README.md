@@ -1,6 +1,15 @@
 # aws_glue_lib_local_development_demo1
 This demo shows how to use AWS Glue Python packages locally via https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-libraries.html#develop-using-etl-library
 
+## Setup
+
+### Local Development prerequisites
+
+> Run `source ./setup_aws_glue_scripts/setup_aws_glue.sh` in GitBash as administrator.
+
+### AWS Glue Local Debugging:
+> Run `./glue_local_debug.sh` or follow the following steps.
+
 > I could run it finally :)
 
 ```
