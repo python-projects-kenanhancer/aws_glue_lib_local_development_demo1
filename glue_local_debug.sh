@@ -10,6 +10,18 @@ GLUE_SCRIPT_DIR="$ROOT_DIR/setup_aws_glue_scripts"
     setup_virtual_env
 )
 
+# Function to check if Jupyter kernel is already installed
+function check_and_install_kernel() {
+    KERNEL_NAME="aws_glue_jupyter_local"
+    KERNEL_EXISTS=$(pipenv run jupyter kernelspec list | grep -c "$KERNEL_NAME")
+    if [ $KERNEL_EXISTS -eq 0 ]; then
+        echo "Installing Jupyter kernel..."
+        pipenv run python -m ipykernel install --user --name=$KERNEL_NAME --display-name "AWS Glue Jupyter Local"
+    else
+        echo "Jupyter kernel already installed."
+    fi
+}
+
 # Function to stop any running Jupyter servers
 function stop_existing_jupyter() {
     echo "Stopping any existing Jupyter Notebook servers..."
@@ -58,21 +70,24 @@ function stop_watchmedo() {
 trap stop_jupyter EXIT
 trap stop_watchmedo EXIT
 
-# Step 1: Stop any existing Jupyter servers
+# Step 1: Check and install Jupyter kernel if necessary
+check_and_install_kernel
+
+# Step 2: Stop any existing Jupyter servers
 stop_existing_jupyter
 
-# Step 2: Activate pipenv environment and run the watchmedo command
+# Step 3: Activate pipenv environment and run the watchmedo command
 echo "Starting watchmedo to convert notebooks to scripts..."
 pipenv run watchmedo shell-command --patterns='*.ipynb' --command='pipenv run jupyter nbconvert --to script ${watch_src_path}' --recursive . &
 WATCHMEDO_PID=$!
 
-# Step 3: Start Jupyter server
+# Step 4: Start Jupyter server
 start_jupyter
 
-# Step 4: Open VSCode with the notebook file in the glue_job directory
+# Step 5: Open VSCode with the notebook file in the glue_job directory
 code ./glue_job/*.ipynb
 
-# Step 5: Instructions for setting up the kernel
+# Step 6: Instructions for setting up the kernel
 echo "From the Command Palette (Ctrl+Shift+P), select 'Notebook: Select Notebook Kernel'."
 echo "Then select 'Select Another Kernel...'."
 echo "Next, select 'Existing Jupyter Server...'."
