@@ -42,59 +42,39 @@
 # 
 # Change arguments in terms of your requirements.
 
-# In[1]:
+# In[ ]:
 
 
+import os
 import sys
 from datetime import datetime
 
 
-stage = "dev"
+stage = os.environ.get("STAGE", "dev")
 current_time = datetime.now()
 
 sys.argv = [
     "user_data_processing_glue_job.py",  # sys.argv[0], script name
-    "true",
-    "--is_local",
-    "true",
-    "--job-bookmark-option",
-    "job-bookmark-disable",
-    "--JOB_ID",
-    "j_a197e5a4ae431ff7631a35bdcddbb8b6bebf747667c548020bfbd40447569b25",
-    "true",
-    "--stage",
-    "dev",
-    "--JOB_RUN_ID",
-    "jr_6a23882f8589db824567693a787ec1014a66dcc868186c2cb8ae26a502f47040",
-    "--JOB_NAME",
-    "TEST_JOB",
-    "--execution_arn",
-    f"arn:aws:states:eu-west-1:625904187796:execution:TEST_JOB:try-{current_time.strftime('%Y%m%d%H%M%S%f')}",
-    "--job",
-    "job_name",
-    "--debugging",
-    "True",
-    "--stage",
-    stage,
-    "--log_group_name",
-    f"/aws-glue/jobs/user_data_processing_glue_job_{stage}",
-    "--total_records",
-    "1000",
-    "--s3_file_path",
-    "test",
+    "--JOB_ID", "j_a197e5a4ae431ff7631a35bdcddbb8b6bebf747667c548020bfbd40447569b25",
+    "--JOB_RUN_ID", "jr_6a23882f8589db824567693a787ec1014a66dcc868186c2cb8ae26a502f47040",
+    "--JOB_NAME", "TEST_JOB",
+    "--execution_arn", f"arn:aws:states:eu-west-1:625904187796:execution:TEST_JOB:try-{current_time.strftime('%Y%m%d%H%M%S%f')}",
+    "--job", "job_name",
+    "--stage", stage,
+    "--log_group_name", f"/aws-glue/jobs/user_data_processing_glue_job_{stage}",
 ]
 
 
 # # Initialize AWS Glue Context
 
-# In[2]:
+# In[ ]:
 
 
+import os
 import sys
 import json
 import logging
 
-from glue_utils import argv_to_dict
 from log_utils import LogUtils, log_operation
 
 from awsglue.transforms import *
@@ -111,18 +91,18 @@ args = getResolvedOptions(
         "JOB_NAME",
         "job",
         "execution_arn",
-        "debugging",
         "log_group_name",
-        "total_records",
         "stage",
     ],
 )
 
+env = os.environ.get("ENV")
 log_utils = LogUtils(
     log_group_name=args["log_group_name"],
     log_stream_name=args["JOB_RUN_ID"],
     job_name=args["job"],
     execution_arn=args["execution_arn"],
+    environment=env
 )
 
 log_utils.configure_logging()
@@ -138,17 +118,13 @@ job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
 
 
-print("sys.argv to dictionary")
-print("**********************")
-print(json.dumps(obj=sys.argv, indent=4))
+# # To Print System Arguments
 
-args = argv_to_dict(argv=sys.argv)
+# In[ ]:
 
-args_json = json.dumps(args, indent=4)
 
-print("args to dictionary")
-print("**********************")
-print(args_json)
+logging.info(f"sys.argv to json: {json.dumps(obj=sys.argv, indent=4)}")
+logging.info(f"args to json: {json.dumps(args, indent=4)}")
 
 
 # # To Configure AWS Cloudwatch Logging
@@ -161,7 +137,7 @@ log_utils.create_cloud_watch_log_group()
 
 # # Business Logic
 
-# In[3]:
+# In[ ]:
 
 
 def read_user_data_csv():
@@ -175,7 +151,7 @@ def read_user_data_csv():
 log_operation("Reading User Data CSV", read_user_data_csv)
 
 
-# In[4]:
+# In[ ]:
 
 
 def filter_users_older_than_30():
@@ -188,7 +164,7 @@ def filter_users_older_than_30():
 log_operation("Filtering Users Older Than 30", filter_users_older_than_30)
 
 
-# In[5]:
+# In[ ]:
 
 
 def select_name_and_city_columns():
@@ -201,7 +177,7 @@ def select_name_and_city_columns():
 log_operation("Selecting Name and City Columns", select_name_and_city_columns)
 
 
-# In[6]:
+# In[ ]:
 
 
 # Stop the SparkSession
