@@ -14,14 +14,18 @@
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${workspaceFolder}\\glue_job;${workspaceFolder}\\..\\kenan_infrastructure;${env:USERPROFILE}\\aws-glue-libs;${env:USERPROFILE}\\spark-3.3.0-amzn-1-bin-3.3.3-amzn-0\\python\\lib\\py4j-0.10.9.5-src.zip;${env:USERPROFILE}\\spark-3.3.0-amzn-1-bin-3.3.3-amzn-0\\python;",
         "PYSPARK_PYTHON": "${workspaceFolder}\\.venv\\Scripts\\python",
-        "AWS_PROFILE": "kenan_role_DEVOPS",
+        "ENV": "local",
+        "STAGE": "dev",
+        "AWS_PROFILE": "default",
         "AWS_REGION": "eu-west-1",
         "AWS_DEFAULT_REGION": "eu-west-1",
     },
     "terminal.integrated.env.osx": {
         "PYTHONPATH": "${workspaceFolder}/glue_job:${workspaceFolder}/../kenan_infrastructure:${env:HOME}/aws-glue-libs:${env:HOME}/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0/python/lib/py4j-0.10.9.5-src.zip:${env:HOME}/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0/python",
         "PYSPARK_PYTHON": "${workspaceFolder}/.venv/bin/python",
-        "AWS_PROFILE": "kenan_role_DEVOPS",
+        "ENV": "local",
+        "STAGE": "dev",
+        "AWS_PROFILE": "default",
         "AWS_REGION": "eu-west-1",
         "AWS_DEFAULT_REGION": "eu-west-1"
     },
